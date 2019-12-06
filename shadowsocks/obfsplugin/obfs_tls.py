@@ -280,6 +280,16 @@ class tls_ticket_auth(plain.plain):
         sha1 = hmac.new(self.server_info.key + sessionid, verifyid[:22], hashlib.sha1).digest()[:10]
         utc_time = struct.unpack('>I', verifyid[:4])[0]
         time_dif = common.int32((int(time.time()) & 0xffffffff) - utc_time)
+        # Verify if obfs_param is correct from client, server side param can be seperate by ',' and will pass whenever string exists in client's param
+        if self.server_info.obfs_param:
+            obfs_param_list = self.server_info.obfs_param.split(',')
+            if not any(s in buf for s in obfs_param_list):
+                logging.info("tls_auth wrong obfs_param")
+                try:
+                    logging.info(buf.decode("ascii", errors="ignore").encode("ascii"))
+                except:
+                    pass
+                return self.decode_error_return(ogn_buf)
         if self.server_info.obfs_param:
             try:
                 self.max_time_dif = int(self.server_info.obfs_param)

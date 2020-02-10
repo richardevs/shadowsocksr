@@ -518,12 +518,14 @@ class TCPRelayHandler(object):
             return ("0.0.0.0", 0)
 
     def _handel_protocol_error(self, client_address, ogn_data):
-        logging.warn("Protocol ERROR, TCP ogn data %s from %s:%d via port %d by UID %d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1], self._server._listen_port, self._user_id))
+        if not binascii.hexlify(ogn_data) == '474554202f20485454502f312e310d0a0d0a':
+            logging.warn("Protocol ERROR, TCP ogn data %s from %s:%d via port %d by UID %d" % (binascii.hexlify(ogn_data), client_address[0], client_address[1], self._server._listen_port, self._user_id))
         self._encrypt_correct = False
         #create redirect or disconnect by hash code
         host, port = self._get_redirect_host(client_address, ogn_data)
-        if port == 0:
-            raise Exception('can not parse header')
+        if not binascii.hexlify(ogn_data) == '474554202f20485454502f312e310d0a0d0a':
+            if port == 0:
+                raise Exception('can not parse header')
         data = b"\x03" + common.to_bytes(common.chr(len(host))) + common.to_bytes(host) + struct.pack('>H', port)
         self._is_redirect = True
         logging.warn("TCP data redir %s:%d %s" % (host, port, binascii.hexlify(data)))

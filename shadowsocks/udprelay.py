@@ -470,7 +470,9 @@ class UDPRelay(object):
             self.add_transfer_u(client_uid, len(data))
             if client_pair is None: # new request
                 addr, port = client.getsockname()[:2]
-                common.connect_log('UDP data to %s(%s):%d from %s:%d by user %d' %
+                # common.connect_log('UDP data to %s(%s):%d from %s:%d by user %d' %
+                #         (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, user_id))
+                logging.info('UDP data to %s(%s):%d from %s:%d by user %d' %
                         (common.to_str(remote_addr[0]), common.to_str(server_addr), server_port, addr, port, user_id))
         except IOError as e:
             err = eventloop.errno_from_exception(e)
